@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_list/route_aware_state.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'custom_footer.dart';
 import 'empty_config.dart';
@@ -30,7 +31,7 @@ abstract class BaseRefreshList extends StatefulWidget {
 /// 11. 定义了一个onDataChanged方法，用于刷新或加载更多数据变更
 /// 12. 定义了一个buildEmptyView方法，用于构建空数据布局
 abstract class BaseRefreshListState<T, S extends BaseRefreshList>
-    extends State<S> with AutomaticKeepAliveClientMixin{
+    extends RouteAwareState<S> with AutomaticKeepAliveClientMixin{
 
   late final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
