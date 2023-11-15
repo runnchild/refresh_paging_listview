@@ -117,7 +117,9 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
       // e.toString().print();
     } finally {
       inLoading = false;
-      setState(() {});
+      if (context.mounted) {
+        setState(() {});
+      }
     }
   }
 
