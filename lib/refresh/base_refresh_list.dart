@@ -31,8 +31,7 @@ abstract class BaseRefreshList extends StatefulWidget {
 /// 11. 定义了一个onDataChanged方法，用于刷新或加载更多数据变更
 /// 12. 定义了一个buildEmptyView方法，用于构建空数据布局
 abstract class BaseRefreshListState<T, S extends BaseRefreshList>
-    extends RouteAwareState<S> with AutomaticKeepAliveClientMixin{
-
+    extends RouteAwareState<S> with AutomaticKeepAliveClientMixin {
   late final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -41,6 +40,9 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
   final int initPage = 1;
   late int _page = initPage;
   bool inLoading = true;
+
+  List<Widget> _headerBuilders = [];
+  List<Widget> _footerBuilders = [];
 
   @override
   bool get wantKeepAlive => true;
@@ -61,28 +63,51 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     ScrollPhysics? physics = const BouncingScrollPhysics(),
     bool enableRefresh = true,
     bool enableLoadMore = true,
+    List<Widget> headerBuilders = const [],
+    List<Widget> footerBuilders = const [],
   }) {
+    this._headerBuilders = headerBuilders;
+    this._footerBuilders = footerBuilders;
     return ScrollConfiguration(
       behavior: OverScrollBehavior(),
       child: SmartRefresher(
         controller: _refreshController,
-        enablePullDown: enableRefresh && widget.enablePullDown,
-        enablePullUp: enableLoadMore && items.isNotEmpty && widget.enablePullUp,
+        enablePullDown: enableRefresh,
+        enablePullUp: enableLoadMore && items.isNotEmpty,
         scrollDirection: scrollDirection,
         onRefresh: refresh,
         physics: physics,
         onLoading: () => loadMore(_page + 1),
         footer: const ListFooter(),
-        child: items.isEmpty ? buildEmptyView(emptyConfig) : child,
+        child: itemCount < 1 ? buildEmptyView(emptyConfig) : child,
       ),
     );
   }
 
+  int get itemCount {
+    return items.length + _headerBuilders.length + _footerBuilders.length;
+  }
+
+  /// do not override
   Widget itemBuilder(BuildContext context, int index) {
-    return buildListItem(context, items[index], index);
+    int headerLength = _headerBuilders.length;
+    int footerIndex = headerLength + items.length;
+    if (index < headerLength) {
+      return _headerBuilders[index];
+    } else if (index >= footerIndex) {
+      index = index - headerLength - items.length;
+      return _footerBuilders[index];
+    } else {
+      index = index - headerLength;
+      return buildListItem(context, getItem(index), index);
+    }
   }
 
   Widget buildListItem(BuildContext context, T item, int index);
+
+  T getItem(int index) {
+    return items[index];
+  }
 
   refresh({bool byUser = true}) async {
     try {
@@ -147,11 +172,10 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            config?.imageView ??
-                Image.asset(config?.image ?? "", width: 150),
+            config?.imageView ?? Image.asset(config?.image ?? "", width: 150),
             SizedBox(height: config?.centerTop ?? 20),
             config?.textView ??
-                Text(config?.text??"",
+                Text(config?.text ?? "",
                     style: Theme.of(context).textTheme.subtitle1),
             SizedBox(height: config?.centerBottom ?? 20),
             config?.body ?? const SizedBox(),
