@@ -59,13 +59,15 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     Axis scrollDirection = Axis.vertical,
     EmptyConfig? emptyConfig,
     ScrollPhysics? physics = const BouncingScrollPhysics(),
+    bool enableRefresh = true,
+    bool enableLoadMore = true,
   }) {
     return ScrollConfiguration(
       behavior: OverScrollBehavior(),
       child: SmartRefresher(
         controller: _refreshController,
-        enablePullDown: widget.enablePullDown,
-        enablePullUp: items.isNotEmpty && widget.enablePullUp,
+        enablePullDown: enableRefresh && widget.enablePullDown,
+        enablePullUp: enableLoadMore && items.isNotEmpty && widget.enablePullUp,
         scrollDirection: scrollDirection,
         onRefresh: refresh,
         physics: physics,
