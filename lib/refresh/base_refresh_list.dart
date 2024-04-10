@@ -41,8 +41,8 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
   late int _page = initPage;
   bool inLoading = true;
 
-  List<Widget> _headerBuilders = [];
-  List<Widget> _footerBuilders = [];
+  List<Widget> _headers = [];
+  List<Widget> _footers = [];
 
   @override
   bool get wantKeepAlive => true;
@@ -63,11 +63,11 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     ScrollPhysics? physics = const BouncingScrollPhysics(),
     bool enableRefresh = true,
     bool enableLoadMore = true,
-    List<Widget> headerBuilders = const [],
-    List<Widget> footerBuilders = const [],
+    List<Widget> headers = const [],
+    List<Widget> footers = const [],
   }) {
-    this._headerBuilders = headerBuilders;
-    this._footerBuilders = footerBuilders;
+    this._headers = headers;
+    this._footers = footers;
     return ScrollConfiguration(
       behavior: OverScrollBehavior(),
       child: SmartRefresher(
@@ -85,18 +85,18 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
   }
 
   int get itemCount {
-    return items.length + _headerBuilders.length + _footerBuilders.length;
+    return items.length + _headers.length + _footers.length;
   }
 
   /// do not override
   Widget itemBuilder(BuildContext context, int index) {
-    int headerLength = _headerBuilders.length;
+    int headerLength = _headers.length;
     int footerIndex = headerLength + items.length;
     if (index < headerLength) {
-      return _headerBuilders[index];
+      return _headers[index];
     } else if (index >= footerIndex) {
       index = index - headerLength - items.length;
-      return _footerBuilders[index];
+      return _footers[index];
     } else {
       index = index - headerLength;
       return buildListItem(context, getItem(index), index);
@@ -165,7 +165,7 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
   Widget buildEmptyView(EmptyConfig? config) {
     return Container(
       color: config?.backgroundColor,
-      padding: EdgeInsets.only(bottom: 40),
+      padding: const EdgeInsets.only(bottom: 40),
       child: Visibility(
         visible: !inLoading,
         child: Column(
@@ -184,12 +184,12 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
                 Visibility(
                   visible: config?.btnVisible ?? false,
                   child: Container(
-                    constraints: BoxConstraints(minWidth: 167),
+                    constraints: const BoxConstraints(minWidth: 167),
                     child: TextButton(
                       onPressed: config?.onPress,
                       child: Text(
                         "${config?.btnText}",
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
