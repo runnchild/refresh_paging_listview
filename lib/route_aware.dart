@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-abstract class MyRouteAware {
+mixin MyRouteAware {
   void didRoutePop(Route<dynamic> route, Route<dynamic>? previousRoute) {}
 
   void didPush() {}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_list/route_aware_state.dart';
+import '/route_aware_state.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'custom_footer.dart';
 import 'empty_config.dart';

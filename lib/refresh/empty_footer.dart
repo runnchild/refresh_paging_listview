@@ -18,12 +18,12 @@ class EmptyFooter extends StatelessWidget {
             width: 34,
             child: Divider(height: 1, color: color),
           ),
-          SizedBox(width: 18),
+          const SizedBox(width: 18),
           Text(
             content ?? "",
             style: TextStyle(color: color, fontSize: fontSize ?? 12),
           ),
-          SizedBox(width: 18),
+          const SizedBox(width: 18),
           SizedBox(
             width: 34,
             child: Divider(height: 1, color: color),

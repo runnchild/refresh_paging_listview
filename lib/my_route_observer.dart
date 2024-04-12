@@ -22,8 +22,6 @@ class MyRouteObserver<R extends Route<dynamic>> extends NavigatorObserver {
   /// to [route], e.g. when [route] is covered by another route or when [route]
   /// is popped off the [Navigator] stack.
   void subscribe(MyRouteAware routeAware, R route) {
-    assert(routeAware != null);
-    assert(route != null);
     final Set<MyRouteAware> subscribers =
         _listeners.putIfAbsent(route, () => <MyRouteAware>{});
     if (subscribers.add(routeAware)) {
@@ -36,7 +34,6 @@ class MyRouteObserver<R extends Route<dynamic>> extends NavigatorObserver {
   /// [routeAware] is no longer informed about changes to its route. If the given argument was
   /// subscribed to multiple types, this will unregister it (once) from each type.
   void unsubscribe(MyRouteAware routeAware) {
-    assert(routeAware != null);
     final List<R> routes = _listeners.keys.toList();
     for (final R route in routes) {
       final Set<MyRouteAware>? subscribers = _listeners[route];
