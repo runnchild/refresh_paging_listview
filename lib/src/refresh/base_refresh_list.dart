@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import '/route_aware_state.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'custom_footer.dart';
-import 'empty_config.dart';
-import 'over_scrollbehavior.dart';
+import 'package:refresh_paging_listview/refresh_paging_listview.dart';
 
 abstract class BaseRefreshList extends StatefulWidget {
   final bool enablePullDown;

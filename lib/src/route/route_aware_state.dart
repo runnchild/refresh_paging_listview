@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'my_route_observer.dart';
-import 'route_aware.dart';
+import 'package:refresh_paging_listview/refresh_paging_listview.dart';
 
 final MyRouteObserver<ModalRoute<void>> myRouteObserver =
 MyRouteObserver<ModalRoute<void>>();
