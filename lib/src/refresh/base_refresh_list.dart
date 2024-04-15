@@ -173,7 +173,7 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
             SizedBox(height: config?.centerTop ?? 20),
             config?.textView ??
                 Text(config?.text ?? "",
-                    style: Theme.of(context).textTheme.subtitle1),
+                    style: Theme.of(context).textTheme.titleMedium),
             SizedBox(height: config?.centerBottom ?? 20),
             config?.body ?? const SizedBox(),
             SizedBox(height: config?.body != null ? 14 : 0),
