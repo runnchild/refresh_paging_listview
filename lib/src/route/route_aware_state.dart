@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:refresh_paging_listview/refresh_paging_listview.dart';
 
 final MyRouteObserver<ModalRoute<void>> myRouteObserver =
-MyRouteObserver<ModalRoute<void>>();
+    MyRouteObserver<ModalRoute<void>>();
 
 abstract class RouteAwareState<T extends StatefulWidget> extends State<T>
     with MyRouteAware {
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    myRouteObserver.subscribe(this, ModalRoute.of(context)!);
+    var route = ModalRoute.of(context);
+    if (route != null) {
+      myRouteObserver.subscribe(this, route);
+    }
   }
 
   @override

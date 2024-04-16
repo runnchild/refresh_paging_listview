@@ -1,18 +1,13 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:refresh_paging_listview/refresh_paging_listview.dart';
 
 abstract class BaseRefreshList extends StatefulWidget {
-  final bool enablePullDown;
-  final bool enablePullUp;
   final BaseRefreshController? controller;
 
-  const BaseRefreshList({
-    Key? key,
-    this.enablePullDown = true,
-    this.enablePullUp = true,
-    this.controller,
-  }) : super(key: key);
+  const BaseRefreshList({Key? key, this.controller}) : super(key: key);
+
 }
 
 /// 1. 定义了一个泛型类，第一个泛型是列表的数据类型，第二个泛型是继承自BaseRefreshList的类
@@ -29,7 +24,7 @@ abstract class BaseRefreshList extends StatefulWidget {
 /// 12. 定义了一个buildEmptyView方法，用于构建空数据布局
 abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     extends RouteAwareState<S> with AutomaticKeepAliveClientMixin {
-  late final RefreshController _refreshController =
+  late RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
   List<T> items = [];
@@ -53,32 +48,71 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     widget.controller?._bindState(this);
   }
 
+  /// See [SmartRefresher]
   Widget buildRefreshList({
+    Key? key,
     required Widget child,
-    Axis scrollDirection = Axis.vertical,
-    EmptyConfig? emptyConfig,
-    ScrollPhysics? physics = const BouncingScrollPhysics(),
+    RefreshController? controller,
+    Widget? refreshHeader,
+    Widget? refreshFooter,
     bool enableRefresh = true,
     bool enableLoadMore = true,
+    bool enableTwoLevel = false,
+    OnTwoLevel? onTwoLevel,
+    DragStartBehavior? dragStartBehavior,
+    bool? primary,
+    double? cacheExtent,
+    int? semanticChildCount,
+    bool? reverse,
+    ScrollPhysics? physics = const BouncingScrollPhysics(),
+    Axis scrollDirection = Axis.vertical,
+    ScrollController? scrollController,
+    List<Widget> headers = const [],
+    List<Widget> footers = const [],
+    EmptyConfig? emptyConfig,
+  }) {
+    if (controller != null) {
+      _refreshController = controller;
+    }
+    _setHeader(headers: headers, footers: footers);
+    return SmartRefresher(
+      key: key,
+      controller: _refreshController,
+      header: refreshHeader,
+      footer: refreshFooter,
+      enablePullDown: enableRefresh,
+      enablePullUp: enableLoadMore && items.isNotEmpty,
+      enableTwoLevel: enableTwoLevel,
+      onTwoLevel: onTwoLevel,
+      dragStartBehavior: dragStartBehavior,
+      primary: primary,
+      cacheExtent: cacheExtent,
+      semanticChildCount: semanticChildCount,
+      reverse: reverse,
+      physics: physics,
+      scrollDirection: scrollDirection,
+      scrollController: scrollController,
+      onRefresh: refresh,
+      onLoading: () => loadMore(_page + 1),
+      child: itemCount < 1 ? buildEmptyView(emptyConfig) : child,
+    );
+  }
+
+  _setHeader({
     List<Widget> headers = const [],
     List<Widget> footers = const [],
   }) {
+    var changed =
+        headers.length != _headers.length || footers.length != _footers.length;
+
     this._headers = headers;
     this._footers = footers;
-    return ScrollConfiguration(
-      behavior: OverScrollBehavior(),
-      child: SmartRefresher(
-        controller: _refreshController,
-        enablePullDown: enableRefresh,
-        enablePullUp: enableLoadMore && items.isNotEmpty,
-        scrollDirection: scrollDirection,
-        onRefresh: refresh,
-        physics: physics,
-        onLoading: () => loadMore(_page + 1),
-        footer: const ListFooter(),
-        child: itemCount < 1 ? buildEmptyView(emptyConfig) : child,
-      ),
-    );
+
+    if (kDebugMode && changed) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        (context as Element).markNeedsBuild();
+      });
+    }
   }
 
   int get itemCount {
@@ -87,6 +121,9 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
 
   /// do not override
   Widget itemBuilder(BuildContext context, int index) {
+    if (kDebugMode && index >= itemCount) {
+      return const SizedBox();
+    }
     int headerLength = _headers.length;
     int footerIndex = headerLength + items.length;
     if (index < headerLength) {
