@@ -66,8 +66,8 @@ class _TaskPageState extends BaseRefreshListState<TaskEntity, TaskPage> {
           const ListHeaderItem(),
         ],
         footers: [
-          // const ListFooterItem(),
-          // const ListFooterItem(),
+          const ListFooterItem(),
+          const ListFooterItem(),
         ],
         child: ListView.separated(
           itemBuilder: itemBuilder,
