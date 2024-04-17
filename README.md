@@ -13,8 +13,10 @@
 本库在pull_to_refresh_flutter3基础上增加分页加载、设置headers、footers和空页面功能。
 刷新和加载更多部分参考[flutter_pulltorefresh](https://github.com/xxzj990-game/flutter_pulltorefresh/blob/master/README.md#screenshots)
 
-|| ![list](png/list.png) | ![empty](png/empty.png) |
+|Sample| ![list](png/list.png) | ![empty](png/empty.png)
+|:---:|:---:|:---:|
 
+## 用法
 ```yaml
    dependencies:
 
