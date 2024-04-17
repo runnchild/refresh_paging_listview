@@ -20,7 +20,7 @@
 ```yaml
    dependencies:
 
-     refresh_paging_listview: ^1.3.0
+     refresh_paging_listview: ^1.3.1
 ```
 import package
 
@@ -73,6 +73,14 @@ import package
 ```dart
     // 全局配置子树下的SmartRefresher,下面列举几个特别重要的属性
      RefreshConfiguration(
+         //分页接口初始页码
+         initPage: 1,
+         //空数据时的空页面
+         emptyBuilder: (config) => EmptyView(config: config),
+         emptyConfig: EmptyConfig(
+           text: "暂无数据，请稍后再试！",
+           image: "images/ic_empty.png",
+         ),
          headerBuilder: () => WaterDropHeader(),        // 配置默认头部指示器,假如你每个页面的头部指示器都一样的话,你需要设置这个
          footerBuilder:  () => ClassicFooter(),        // 配置默认底部指示器
          headerTriggerDistance: 80.0,        // 头部触发刷新的越界距离
