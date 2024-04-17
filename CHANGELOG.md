@@ -1,5 +1,5 @@
 
-## 1.3.0
+## 1.3.1
 * RefreshConfiguration 全局配置增加分页初始页码initPage，空页面组件配置
 * 增加列表数据为空时，即使有footer或header也显示空页面支持
 

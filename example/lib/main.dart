@@ -15,10 +15,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshConfiguration(
       headerBuilder: () => const WaterDropHeader(),
-      initPage: 1,
       //分页接口初始页码
-      emptyBuilder: (config) => EmptyView(config: config),
+      initPage: 1,
       //空数据时的空页面
+      emptyBuilder: (config) => EmptyView(config: config),
       emptyConfig: EmptyConfig(
         text: "暂无数据，请稍后再试！",
         image: "images/ic_empty.png",

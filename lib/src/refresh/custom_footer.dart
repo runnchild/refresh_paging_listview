@@ -8,7 +8,8 @@ class ListFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var localization = RefreshLocalizations.of(context)?.currentLocalization ?? EnRefreshString();
+    var localization = RefreshLocalizations.of(context)?.currentLocalization ??
+        EnRefreshString();
     return CustomFooter(
       loadStyle: LoadStyle.ShowWhenLoading,
       builder: (BuildContext context, LoadStatus? mode) {

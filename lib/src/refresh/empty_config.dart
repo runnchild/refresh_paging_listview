@@ -48,7 +48,8 @@ class EmptyConfig {
       textView: textView ?? this.textView,
       button: button ?? this.button,
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      showEmptyViewWhenListEmpty: showEmptyViewWhenListEmpty ?? this.showEmptyViewWhenListEmpty,
+      showEmptyViewWhenListEmpty:
+          showEmptyViewWhenListEmpty ?? this.showEmptyViewWhenListEmpty,
     );
   }
 }
