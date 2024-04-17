@@ -7,7 +7,6 @@ abstract class BaseRefreshList extends StatefulWidget {
   final BaseRefreshController? controller;
 
   const BaseRefreshList({Key? key, this.controller}) : super(key: key);
-
 }
 
 /// 1. 定义了一个泛型类，第一个泛型是列表的数据类型，第二个泛型是继承自BaseRefreshList的类
@@ -29,9 +28,10 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
 
   List<T> items = [];
 
-  final int initPage = 1;
+  late final int initPage;
   late int _page = initPage;
   bool inLoading = true;
+  EmptyConfig? mEmptyConfig;
 
   List<Widget> _headers = [];
   List<Widget> _footers = [];
@@ -43,6 +43,7 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      initPage = RefreshConfiguration.of(context)?.initPage ?? 1;
       refresh(byUser: false);
     });
     widget.controller?._bindState(this);
@@ -71,10 +72,16 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     List<Widget> footers = const [],
     EmptyConfig? emptyConfig,
   }) {
+    this._headers = headers;
+    this._footers = footers;
     if (controller != null) {
       _refreshController = controller;
     }
-    _setHeader(headers: headers, footers: footers);
+    mEmptyConfig = emptyConfig ?? RefreshConfiguration.of(context)?.emptyConfig;
+    mEmptyConfig?.onPress = () {
+      refresh();
+    };
+
     return SmartRefresher(
       key: key,
       controller: _refreshController,
@@ -94,29 +101,30 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
       scrollController: scrollController,
       onRefresh: refresh,
       onLoading: () => loadMore(_page + 1),
-      child: itemCount < 1 ? buildEmptyView(emptyConfig) : child,
+      child: itemCount < 1 && !inLoading ? buildEmptyView(mEmptyConfig) : child,
     );
   }
 
-  _setHeader({
-    List<Widget> headers = const [],
-    List<Widget> footers = const [],
-  }) {
-    var changed =
-        headers.length != _headers.length || footers.length != _footers.length;
-
-    this._headers = headers;
-    this._footers = footers;
-
-    if (kDebugMode && changed) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        (context as Element).markNeedsBuild();
-      });
-    }
+  @override
+  void reassemble() {
+    super.reassemble();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      (context as Element).markNeedsBuild();
+    });
   }
 
+  /// 包含header和footer的列表元素数量
+  /// 如果[showEmptyViewWhenListEmpty]=true,即列表数据为空即使有header或footer也展示EmptyView，
+  /// 当列表为空时实际的itemCount为header+footer+1
   int get itemCount {
-    return items.length + _headers.length + _footers.length;
+    var headAndFootLength = _headers.length + _footers.length;
+
+    if (mEmptyConfig?.showEmptyViewWhenListEmpty == true &&
+        items.isEmpty &&
+        headAndFootLength > 0) {
+      return headAndFootLength + 1;
+    }
+    return headAndFootLength + items.length;
   }
 
   /// do not override
@@ -125,18 +133,23 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
       return const SizedBox();
     }
     int headerLength = _headers.length;
-    int footerIndex = headerLength + items.length;
+    int footerIndex = itemCount - _footers.length;
     if (index < headerLength) {
       return _headers[index];
     } else if (index >= footerIndex) {
-      index = index - headerLength - items.length;
+      index = index - footerIndex;
       return _footers[index];
     } else {
-      index = index - headerLength;
-      return buildListItem(context, getItem(index), index);
+      if (items.isEmpty) {
+        return buildEmptyView(mEmptyConfig);
+      } else {
+        index = index - headerLength;
+        return buildListItem(context, getItem(index), index);
+      }
     }
   }
 
+  /// 返回列表Item Widget
   Widget buildListItem(BuildContext context, T item, int index);
 
   T getItem(int index) {
@@ -152,7 +165,6 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
       onDataChanged(items);
     } catch (e) {
       _refreshController.refreshFailed();
-      // e.toString().print();
     } finally {
       inLoading = false;
       if (context.mounted) {
@@ -161,6 +173,8 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     }
   }
 
+  /// 分页请求数据
+  /// [page] 分页页码
   Future<List<T>> loadData(int page);
 
   loadMore(int page) async {
@@ -177,7 +191,6 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
       onDataChanged(items);
     } catch (e) {
       _refreshController.loadFailed();
-      // e.toString().print();
     } finally {
       inLoading = false;
       if (context.mounted) {
@@ -186,7 +199,7 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
     }
   }
 
-  /// 刷新或加载更多数据变更
+  /// 刷新或加载更多后数据变更
   void onDataChanged(List<T> items) {}
 
   @override
@@ -197,46 +210,8 @@ abstract class BaseRefreshListState<T, S extends BaseRefreshList>
 
   /// 空数据布局
   Widget buildEmptyView(EmptyConfig? config) {
-    return Container(
-      color: config?.backgroundColor,
-      padding: const EdgeInsets.only(bottom: 40),
-      child: Visibility(
-        visible: !inLoading,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            config?.imageView ?? Image.asset(config?.image ?? "", width: 150),
-            SizedBox(height: config?.centerTop ?? 20),
-            config?.textView ??
-                Text(config?.text ?? "",
-                    style: Theme.of(context).textTheme.titleMedium),
-            SizedBox(height: config?.centerBottom ?? 20),
-            config?.body ?? const SizedBox(),
-            SizedBox(height: config?.body != null ? 14 : 0),
-            config?.button ??
-                Visibility(
-                  visible: config?.btnVisible ?? false,
-                  child: Container(
-                    constraints: const BoxConstraints(minWidth: 167),
-                    child: TextButton(
-                      onPressed: config?.onPress,
-                      child: Text(
-                        "${config?.btnText}",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            // SizedBox(height: 80),
-          ],
-        ),
-      ),
-    );
+    return RefreshConfiguration.of(context)?.emptyBuilder?.call(config) ??
+        const SizedBox();
   }
 }
 

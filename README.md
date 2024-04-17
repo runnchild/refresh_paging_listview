@@ -10,23 +10,20 @@
 </a>
 
 ## 介绍
-本库在pull_to_refresh_flutter3基础上增加分页加载，设置headers、footers和空页面功能。
+本库在pull_to_refresh_flutter3基础上增加分页加载、设置headers、footers和空页面功能。
 刷新和加载更多部分参考[flutter_pulltorefresh](https://github.com/xxzj990-game/flutter_pulltorefresh/blob/master/README.md#screenshots)
 
-```yaml
+|| ![list](png/list.png) | ![empty](png/empty.png) |
 
+```yaml
    dependencies:
 
-     refresh_paging_listview: ^1.2.0
-
-
+     refresh_paging_listview: ^1.3.0
 ```
 import package
 
 ```dart
-
   import 'package:refresh_paging_listview/refresh_paging_listview.dart';
-
 ```
 分页部分 example：
 
@@ -88,5 +85,4 @@ import package
             ........
         )
     );
-
 ```
