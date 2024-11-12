@@ -81,7 +81,7 @@ class RefreshConfiguration extends refresh.RefreshConfiguration {
           ),
         );
 
-  RefreshConfiguration copyOf({
+  RefreshConfiguration copyWith({
     required Widget child,
     IndicatorBuilder? headerBuilder,
     IndicatorBuilder? footerBuilder,

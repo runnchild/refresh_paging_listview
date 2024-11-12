@@ -58,7 +58,7 @@ class _TaskPageState extends BaseRefreshListState<TaskEntity, TaskPage> {
       ),
       body: buildRefreshList(
         // enableLoadMore: false,
-        emptyConfig: RefreshConfiguration.of(context)?.emptyConfig?.copyOf(
+        emptyConfig: RefreshConfiguration.of(context)?.emptyConfig?.copyWith(
               btnText: "重试",
             ),
         headers: [

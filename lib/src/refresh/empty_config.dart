@@ -8,7 +8,7 @@ class EmptyConfig {
   final bool btnVisible;
 
   final Widget? imageView, textView, button;
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   VoidCallback? onPress;
 
@@ -20,11 +20,11 @@ class EmptyConfig {
     this.imageView,
     this.textView,
     this.button,
-    this.backgroundColor = Colors.white,
+    this.backgroundColor,
     this.showEmptyViewWhenListEmpty = true,
   });
 
-  EmptyConfig copyOf({
+  EmptyConfig copyWith({
     String? text,
     String? btnText,
     String? image,
